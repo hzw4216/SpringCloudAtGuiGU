@@ -1,0 +1,58 @@
+server:
+  port: 9527
+
+spring:
+  application:
+    name: cloud-gateway   # 以微服务注册进 consul 或 nacos 服务列表内
+  cloud:
+    consul:
+      host: localhost
+      port: 8500
+      discovery:
+        prefer-ip-address: true
+        service-name: ${spring.application.name}
+    gateway:
+      routes:
+        - id: pay_routh1    # 路由id
+#          uri: http://localhost:8001  # 匹配后提供服务的地址
+          uri: lb://cloud-payment-service   # 动态地址
+          predicates:
+            - Path=/pay/gateway/get/**  # 断言 路径相匹配的进行路由
+#            - After=2024-04-12T14:04:19.294110+08:00[Asia/Shanghai]
+#            - Cookie=username,zs
+#            - Header=X-Request-Id, \d+  # 请求头要有X-Request-Id 属性并且值为整数的正则表达式
+#            - Host=**.atguigu.com
+#            - RemoteAddr=192.168.124.1/24 # 外部访问我的 IP 限制
+
+#            - name: My
+#              args:
+#                userType: diamond
+
+#            - My=gold
+
+        - id: pay_routh2
+#          uri: http://localhost:8001
+          uri: lb://cloud-payment-service   # 动态地址
+          predicates:
+            - Path=/pay/gateway/info/**
+            - After=2024-04-12T14:04:19.294110+08:00[Asia/Shanghai]
+
+        - id: pay_routh3
+          uri: lb://cloud-payment-service
+          predicates:
+            - Path=/pay/gateway/filter/**
+#            - Path=/gateway/filter/**
+#            - Path=/HZW/abc/{segment}   # {segment}的内容最后被SetPath替代 ，
+          filters:
+            - My=atguigu
+#            - SetPath=/pay/gateway/{segment}   # {segment} 表示占位符
+#            - PrefixPath=/pay  # http://localhost:9527/pay/gateway/filter 被传分为 PrefixPath + Path
+            - AddRequestHeader=X-Request-atguigu1, atguiguValue1  #  添加请求头
+#            - AddRequestHeader=X-Request-atguigu2, atguiguValue2
+#            - RemoveRequestHeader=sec-fetch-site    # 删除请求头 sec-fetch-site
+#            - SetRequestHeader=sec-fetch-mode, BlueHZW    # 设置请求头 sec-fetch-mode 的值为 BlueHZW
+#            - AddRequestParameter=customerId, 123456  # 添加请求参数
+#            - RemoveRequestParameter=customerName     # 删除请求参数 customerName
+#            - AddResponseHeader=X-Response-atguigu, BlueResponse # 添加响应头
+#            - SetResponseHeader=Date, 2099-1-1 # 设置响应头 Date 的值为 2099-1-1
+#            - RemoveResponseHeader=Content-Type # 删除响应头 Content-Type
